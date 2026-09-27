@@ -8,10 +8,12 @@
     "start": "tsc && env ELECTRON_RUN_AS_NODE= GDK_BACKEND=x11 electron . 2>&1 | grep -a -v -E 'Fontconfig (error|warning)'"
   },
   "dependencies": {
-    "nw-flash-trust": "^0.3.0"
+    "nw-flash-trust": "^0.3.0",
+    "ws": "^8.21.3"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "@types/ws": "^8.18.1",
     "electron": "11.5.0",
     "typescript": "^7.0.2"
   }
