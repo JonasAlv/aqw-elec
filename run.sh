@@ -54,7 +54,7 @@ if [ ! -f "node_modules/electron/dist/electron" ]; then
   rm -rf node_modules/electron/dist
   mkdir -p node_modules/electron/dist
   unzip -oq "$ELECTRON_ZIP" -d node_modules/electron/dist
-  echo "electron" > node_modules/electron/path.txt
+  printf "electron" > node_modules/electron/path.txt
   chmod +x node_modules/electron/dist/electron
   echo "[aqw-elec] Electron v${ELECTRON_VER} ready."
 fi
