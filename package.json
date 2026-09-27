@@ -1,0 +1,18 @@
+{
+  "name": "aqw-elec",
+  "version": "1.0.0",
+  "description": "Stateless AQW Desktop Client (Electron 11.5.0 + Pepper Flash)",
+  "main": "dist/main/main.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "tsc && env ELECTRON_RUN_AS_NODE= GDK_BACKEND=x11 electron . 2>&1 | grep -a -v -E 'Fontconfig (error|warning)'"
+  },
+  "dependencies": {
+    "nw-flash-trust": "^0.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "electron": "11.5.0",
+    "typescript": "^7.0.2"
+  }
+}

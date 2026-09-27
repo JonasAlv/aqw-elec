@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+package-lock.json
+*.tgz
+
+# Build artifacts
+dist/
+
+# Optional custom bridge (kept local / gitignored for clean repository)
+assets/bridge.swf
+
+# OS & Environment
+.DS_Store
+Thumbs.db
+*.log
