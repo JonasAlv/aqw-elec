@@ -29,6 +29,14 @@ if [ ! -d "node_modules" ] || [ ! -f "node_modules/.bin/tsc" ]; then
   echo "[aqw-elec] Dependencies ready."
 fi
 
+# npm blocks Electron's postinstall script by default on newer versions,
+# which means the actual Electron binary never gets downloaded.
+# Detect this and run the install script manually.
+if [ ! -f "node_modules/electron/dist/electron" ]; then
+  echo "[aqw-elec] Electron binary missing — running postinstall manually..."
+  node node_modules/electron/install.js
+fi
+
 # Compile TypeScript
 echo "[aqw-elec] Compiling TypeScript..."
 ./node_modules/.bin/tsc
