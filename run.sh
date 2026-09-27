@@ -29,12 +29,34 @@ if [ ! -d "node_modules" ] || [ ! -f "node_modules/.bin/tsc" ]; then
   echo "[aqw-elec] Dependencies ready."
 fi
 
-# npm blocks Electron's postinstall script by default on newer versions,
-# which means the actual Electron binary never gets downloaded.
-# Detect this and run the install script manually.
+# Electron's postinstall is blocked by npm's install-scripts policy AND
+# extract-zip (used by install.js) silently fails on Node 26+.
+# Workaround: find the cached zip (~/.cache/electron) and extract with system unzip.
 if [ ! -f "node_modules/electron/dist/electron" ]; then
-  echo "[aqw-elec] Electron binary missing — running postinstall manually..."
-  node node_modules/electron/install.js
+  echo "[aqw-elec] Electron binary missing — extracting from cache with unzip..."
+  ELECTRON_VER=$(node -e "process.stdout.write(require('./node_modules/electron/package.json').version)")
+  ELECTRON_ZIP="$HOME/.cache/electron/electron-v${ELECTRON_VER}-linux-x64.zip"
+
+  # If not cached yet, trigger the download via install.js (it downloads even if extract fails)
+  if [ ! -f "$ELECTRON_ZIP" ]; then
+    echo "[aqw-elec] Downloading Electron v${ELECTRON_VER}..."
+    node node_modules/electron/install.js 2>/dev/null || true
+    # Also check the hashed subdirectory format used by newer @electron/get
+    ELECTRON_ZIP_ALT=$(find "$HOME/.cache/electron" -name "electron-v${ELECTRON_VER}-linux-x64.zip" 2>/dev/null | head -1)
+    [ -n "$ELECTRON_ZIP_ALT" ] && ELECTRON_ZIP="$ELECTRON_ZIP_ALT"
+  fi
+
+  if [ ! -f "$ELECTRON_ZIP" ]; then
+    echo "[aqw-elec] ERROR: Could not find Electron zip at $ELECTRON_ZIP"
+    exit 1
+  fi
+
+  rm -rf node_modules/electron/dist
+  mkdir -p node_modules/electron/dist
+  unzip -oq "$ELECTRON_ZIP" -d node_modules/electron/dist
+  echo "electron" > node_modules/electron/path.txt
+  chmod +x node_modules/electron/dist/electron
+  echo "[aqw-elec] Electron v${ELECTRON_VER} ready."
 fi
 
 # Compile TypeScript
