@@ -239,7 +239,20 @@ const httpServer = http.createServer((req, res) => {
     }
   }
 
-  const targetUrl = 'https://game.aq.com/game' + req.url;
+  // The /game prefix is only correct for actual game assets.
+  // Pages like /boklore/badges/ load root-level assets (/css/, /img/, /shared/, etc.)
+  // that live at https://game.aq.com/<path> (no /game prefix).
+  // Detect these and forward without the /game prefix.
+  const ROOT_LEVEL_PREFIXES = ['/css/', '/img/', '/shared/', '/js/', '/fonts/', '/lore/', '/boklore/', '/help/', '/pages/', '/character', '/about', '/gamedesignnotes/'];
+  const isRootLevelPath = ROOT_LEVEL_PREFIXES.some(prefix => (req.url || '/').startsWith(prefix));
+  const targetUrl = isRootLevelPath
+    ? 'https://game.aq.com' + req.url
+    : 'https://game.aq.com/game' + req.url;
+
+  if (isRootLevelPath) {
+    console.log(`[HTTP Proxy] Root-level path: ${req.url} → ${targetUrl}`);
+  }
+
   const reqHeaders: any = {
     ...req.headers,
     host: 'game.aq.com',
